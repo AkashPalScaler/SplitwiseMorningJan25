@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DeferredImportSelector;
 import org.springframework.stereotype.Service;
 import scaler.com.splitwise.dtos.Transaction;
+import scaler.com.splitwise.exceptions.SplitwiseGroupNotExistsException;
 import scaler.com.splitwise.models.*;
 import scaler.com.splitwise.repositories.GroupRepository;
 import scaler.com.splitwise.strategies.HeapSettleUpStrategy;
@@ -20,12 +21,12 @@ public class SettleUpService {
     private GroupRepository groupRepository;
     @Autowired
     private HeapSettleUpStrategy heapSettleUpStrategy;
-    public List<Transaction> settleUpGroup(Long groupId){
+    public List<Transaction> settleUpGroup(Long groupId) throws SplitwiseGroupNotExistsException {
         //Get the group from groupId
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         //Validate the group
         if(optionalGroup.isEmpty()){
-            throw new RuntimeException("Group doesn't exist");
+            throw new SplitwiseGroupNotExistsException("Group doesn't exist");
         }
         // Fetch the expenses
         List<Expense> expenses = optionalGroup.get().getExpenses();
